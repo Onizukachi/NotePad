@@ -21,7 +21,15 @@ class Post
     def find_by_id(id)
       db = SQLite3::Database.open @@SQLITE_DB_FILE
       db.results_as_hash = true
-      result = db.execute("SELECT * FROM posts WHERE rowid = ?", id)
+
+      begin
+        result = db.execute("SELECT * FROM posts WHERE rowid = ?", id)
+      rescue SQLite3::SQLException => e
+        puts "Не удалось выполнить запрос в базе #{@@SQLITE_DB_FILE}"
+        abort e.message
+      ensure
+        db.close if db
+      end
 
       if result.empty?
         puts "Такой id #{id} не найдено в базе :(" 
@@ -37,18 +45,25 @@ class Post
       db = SQLite3::Database.open @@SQLITE_DB_FILE
       db.results_as_hash = false
 
-      query = "SELECT rowid, * FROM posts "
-      query += "WHERE type = :type " unless type.nil?  #используем не знак вопроса, а именнованй плейсхолдер
-      query += "ORDER BY rowid DESC "
-      query += "LIMIT :limit " unless limit.nil?
+      begin
+        query = "SELECT rowid, * FROM posts "
+        query += "WHERE type = :type " unless type.nil?  #используем не знак вопроса, а именнованй плейсхолдер
+        query += "ORDER BY rowid DESC "
+        query += "LIMIT :limit " unless limit.nil?
 
-      statement = db.prepare(query)
+        statement = db.prepare(query)
 
-      statement.bind_param('type', type) unless type.nil?
-      statement.bind_param('limit', limit) unless limit.nil?
+        statement.bind_param('type', type) unless type.nil?
+        statement.bind_param('limit', limit) unless limit.nil?
 
-      result = statement.execute!
-      statement.close
+        result = statement.execute!
+        statement.close
+      rescue SQLite3::SQLException => e
+        puts "Не удалось выполнить запрос в базе #{@@SQLITE_DB_FILE}"
+        abort e.message
+      ensure
+        db.close if db
+      end
       db.close
 
       return result
@@ -86,19 +101,24 @@ class Post
     db = SQLite3::Database.open(@@SQLITE_DB_FILE)
     db.results_as_hash = true
 
-    db.execute(
-      "INSERT INTO posts (" +
-      to_db_hash.keys.join(',') + 
-      ")" +
-      " VALUES (" + 
-      ("?, " * to_db_hash.keys.size).chomp(', ') + 
-      ")", 
-      to_db_hash.values
-    )
+    begin
+      db.execute(
+        "INSERT INTO posts (" +
+        to_db_hash.keys.join(',') + 
+        ")" +
+        " VALUES (" + 
+        ("?, " * to_db_hash.keys.size).chomp(', ') + 
+        ")", 
+        to_db_hash.values
+      )
 
-    insert_row_id = db.last_insert_row_id
-
-    db.close
+      insert_row_id = db.last_insert_row_id
+    rescue SQLite3::SQLException => e
+      puts "Не удалось выполнить запрос в базе #{@@SQLITE_DB_FILE}"
+      abort e.message
+    ensure
+      db.close if db
+    end
 
     insert_row_id
   end
