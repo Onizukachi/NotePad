@@ -1,9 +1,9 @@
 require "sqlite3"
 
-require_relative 'post'
-require_relative 'link'
-require_relative 'memo'
-require_relative 'task'
+require_relative 'lib/post'
+require_relative 'lib/link'
+require_relative 'lib/memo'
+require_relative 'lib/task'
 
 puts "Привет, я твой блокно! Версия 2 + sqlite"
 puts "Что вы хотите записать в блокнот?"
