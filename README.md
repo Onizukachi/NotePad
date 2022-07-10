@@ -5,30 +5,26 @@ Language: Ruby, version 2.7.3
 
 DataBase: SQLite3
 
-## To Start
-Download or clone **Notepad**
+### Adding posts
 
-Get your terminal window to this programm
-
-## Add notes
-To add new note enter in terminal window
+To add a new post, enter in the terminal:
 
 ```
-$ ruby new_post.rb
+ruby new_post.rb
 ```
 
-All notes are saving to notepad.db
+Posts are saved to `notepad.db` using the` sqlite3` gem
 
-## Read saved notes
-To read saved notes enter in terminal window
+### Viewing Notepad
 
-```
-$ ruby read.rb
-```
-
-## Help
-To take help enter in terminal window
+To view the posts, type in the terminal:
 
 ```
-$ruby read.rb -h
+ruby read.rb [options]
 ```
+
+For help:
+
+```
+ruby read.rb -h
+
